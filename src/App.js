@@ -1,25 +1,34 @@
-import logo from './logo.svg';
-import './App.css';
+import { ChakraProvider, Container } from '@chakra-ui/react'
+import Header from 'components/Header'
+import HomePage from 'pages/HomePage'
+import TicketProfilePage from 'pages/TicketProfilePage'
+import TicketsPage from 'pages/TicketsPage'
+import UserProfilePage from 'pages/UserProfilePage'
+import UsersPage from 'pages/UsersPage'
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 
-function App() {
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <ChakraProvider>
+      <Router>
+        <Header />
+
+        <Container maxW='container.xl'>
+          <Routes>
+            <Route path='/' element={<HomePage />} />
+
+            <Route path='tickets' element={<TicketsPage />} />
+
+            <Route path='tickets/:id' element={<TicketProfilePage />} />
+
+            <Route path='users' element={<UsersPage />} />
+
+            <Route path='users/:id' element={<UserProfilePage />} />
+          </Routes>
+        </Container>
+      </Router>
+    </ChakraProvider>
+  )
 }
 
-export default App;
+export default App
