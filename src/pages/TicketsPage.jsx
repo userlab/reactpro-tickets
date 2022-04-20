@@ -1,4 +1,5 @@
 import {
+  Spinner,
   Table,
   TableContainer,
   Tbody,
@@ -8,34 +9,29 @@ import {
   Thead,
   Tr,
 } from '@chakra-ui/react'
+import { getTickets } from 'api/ticketApi'
+import { useQuery } from 'react-query'
+import { useNavigate } from 'react-router-dom'
 
-const tickets = [
-  {
-    id: 1,
-    title: 'Grabar video de ReactPro',
-    description: 'Video de clase 9',
-  },
-  {
-    id: 2,
-    title: 'Revisar pull request',
-    description: 'Aprobar pull requests de proyectos',
-  },
-  {
-    id: 3,
-    title: 'Crear repositorio de ticket',
-    description: 'Crear repositorio de ticket',
-  },
-  {
-    id: 4,
-    title: 'Aprobar PRs',
-    description: 'Aprobar PRs',
-  },
-]
+export default function TicketsTable() {
+  const {
+    isLoading,
+    isFetching,
+    error,
+    data: tickets,
+  } = useQuery('tickets', getTickets)
+  const navigate = useNavigate()
 
-export default function TicketsPage() {
+  const handleClick = ticket => () => {
+    console.log('handleClick', ticket)
+    navigate(`./${ticket.id}`)
+  }
+
   return (
     <>
       <Text fontSize='6xl'>Tickets</Text>
+
+      {isLoading || isFetching ? <Spinner /> : null}
 
       <TableContainer>
         <Table variant='simple'>
@@ -43,21 +39,29 @@ export default function TicketsPage() {
             <Tr>
               <Th>ID</Th>
               <Th>Título</Th>
-              <Th>Descripción</Th>
             </Tr>
           </Thead>
 
           <Tbody>
-            {tickets.map(ticket => (
-              <Tr key={ticket.id}>
+            {tickets?.map(ticket => (
+              <Tr
+                key={ticket.id}
+                onClick={handleClick(ticket)}
+                _hover={{
+                  textDecoration: 'none',
+                  bg: 'gray.200',
+                  cursor: 'pointer',
+                }}
+              >
                 <Td>{ticket.id}</Td>
                 <Td>{ticket.title}</Td>
-                <Td>{ticket.description}</Td>
               </Tr>
             ))}
           </Tbody>
         </Table>
       </TableContainer>
+
+      {error ? <pre>{error.message}</pre> : null}
     </>
   )
 }
