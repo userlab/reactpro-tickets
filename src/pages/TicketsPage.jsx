@@ -1,4 +1,5 @@
 import {
+  IconButton,
   Spinner,
   Table,
   TableContainer,
@@ -9,22 +10,44 @@ import {
   Thead,
   Tr,
 } from '@chakra-ui/react'
-import { getTickets } from 'api/ticketApi'
-import { useQuery } from 'react-query'
+import { deleteTicket, getTickets } from 'api/ticketApi'
+import useModalContext from 'hooks/useModalContext'
+import queryClient from 'queryClient'
+import { FaEdit, FaTrashAlt } from 'react-icons/fa'
+import { useMutation, useQuery } from 'react-query'
 import { useNavigate } from 'react-router-dom'
 
 export default function TicketsTable() {
+  const { openTicketModal } = useModalContext()
+  const navigate = useNavigate()
   const {
     isLoading,
     isFetching,
     error,
     data: tickets,
   } = useQuery('tickets', getTickets)
-  const navigate = useNavigate()
+  const { mutate } = useMutation(deleteTicket, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('tickets')
+    },
+  })
 
   const handleClick = ticket => () => {
-    console.log('handleClick', ticket)
     navigate(`./${ticket.id}`)
+  }
+
+  const handleEdit = ticket => event => {
+    event.stopPropagation()
+
+    openTicketModal(ticket)
+  }
+
+  const handleDelete = ticket => event => {
+    event.stopPropagation()
+
+    if (window.confirm('¿Está seguro que desea borrar este ticket?')) {
+      mutate(ticket.id)
+    }
   }
 
   return (
@@ -39,6 +62,7 @@ export default function TicketsTable() {
             <Tr>
               <Th>ID</Th>
               <Th>Título</Th>
+              <Th />
             </Tr>
           </Thead>
 
@@ -55,6 +79,14 @@ export default function TicketsTable() {
               >
                 <Td>{ticket.id}</Td>
                 <Td>{ticket.title}</Td>
+                <Td>
+                  <IconButton icon={<FaEdit />} onClick={handleEdit(ticket)} />
+
+                  <IconButton
+                    icon={<FaTrashAlt />}
+                    onClick={handleDelete(ticket)}
+                  />
+                </Td>
               </Tr>
             ))}
           </Tbody>
